@@ -2,7 +2,7 @@ package com.uploader.demo.service.processor;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 public class ProductBasicsCsvProcessor implements CsvProcessor {
 
     private final MongoTemplate mongoTemplate;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+//    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void process(MultipartFile file) {
@@ -42,7 +42,7 @@ public class ProductBasicsCsvProcessor implements CsvProcessor {
                 }
 
                 mongoTemplate.insert(data, "product_basics");
-                kafkaTemplate.send("product-basics-topic", data);
+//                kafkaTemplate.send("product-basics-topic", data);
             }
 
         } catch (Exception e) {
