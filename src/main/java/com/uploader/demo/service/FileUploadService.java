@@ -71,8 +71,8 @@ public class FileUploadService {
 
     private final CsvProcessorFactory factory;
 
-    public void processCsv(MultipartFile file, EntityType entityType) {
+    public void processCsv(MultipartFile file, EntityType entityType, String processId) {
         CsvProcessor processor = factory.getProcessor(entityType);
-        processor.process(file);
+        processor.process(file, processId);
     }
 }
