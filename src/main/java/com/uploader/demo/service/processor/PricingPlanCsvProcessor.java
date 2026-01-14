@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component("PRICING_PLAN")
 public class PricingPlanCsvProcessor implements CsvProcessor {
-    public void process(MultipartFile file) {
+    public void process(MultipartFile file, String processId) {
         // parse pricing csv
     }
 }
