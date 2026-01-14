@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
@@ -22,12 +25,16 @@ public class FileUploadController {
     }
 
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadCsv(
+    public ResponseEntity<Map<String, String>>  uploadCsv(
             @RequestPart("file") MultipartFile file,
             @RequestPart("entity") String entity) {
         EntityType entityType = EntityType.valueOf(entity);
         System.out.println("/uplod api called+++++++++++++++++++++++");
-        fileUploadService.processCsv(file, entityType);
-        return ResponseEntity.ok("File processed for " + entityType);
+        String processId = UUID.randomUUID().toString();
+        fileUploadService.processCsv(file, entityType, processId);
+        return ResponseEntity.ok(Map.of(
+                "message", "File processed successfully",
+                "processId", processId
+        ));
     }
 }
