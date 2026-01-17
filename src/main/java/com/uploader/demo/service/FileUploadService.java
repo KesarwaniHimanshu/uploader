@@ -1,6 +1,7 @@
 package com.uploader.demo.service;
 
 import com.uploader.demo.constants.EntityType;
+import com.uploader.demo.constants.ProcessType;
 import com.uploader.demo.model.GenericCsvDocument;
 import com.uploader.demo.model.OriginalData;
 import com.uploader.demo.repository.GenericCsvRepository;
@@ -71,8 +72,8 @@ public class FileUploadService {
 
     private final CsvProcessorFactory factory;
 
-    public void processCsv(MultipartFile file, EntityType entityType, String processId) {
+    public void processCsv(MultipartFile file, EntityType entityType, ProcessType processType, String processId) {
         CsvProcessor processor = factory.getProcessor(entityType);
-        processor.process(file, processId);
+        processor.process(file, processType, processId );
     }
 }

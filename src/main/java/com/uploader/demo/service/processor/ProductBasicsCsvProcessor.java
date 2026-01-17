@@ -1,6 +1,7 @@
 package com.uploader.demo.service.processor;
 
 import com.uploader.demo.constants.EntityType;
+import com.uploader.demo.constants.ProcessType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class ProductBasicsCsvProcessor implements CsvProcessor {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public void process(MultipartFile file, String processId) {
+    public void process(MultipartFile file, ProcessType processType, String processId) {
 
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(file.getInputStream()))) {
@@ -52,6 +53,7 @@ public class ProductBasicsCsvProcessor implements CsvProcessor {
 
                 // 🔗 metadata
                 data.put("processId", processId);
+                data.put("processType", processType.name());
                 data.put("entityType", EntityType.PRODUCT_BASICS);
                 data.put("createdAt", LocalDateTime.now());
 
