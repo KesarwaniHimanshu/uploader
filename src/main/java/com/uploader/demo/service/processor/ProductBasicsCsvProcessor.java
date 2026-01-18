@@ -14,19 +14,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component("PRODUCT_BASICS")
+@Component
 @RequiredArgsConstructor
 public class ProductBasicsCsvProcessor implements CsvProcessor {
 
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public void process(MultipartFile file, ProcessType processType, String processId) {
+    public EntityType getEntityType() {
+        return EntityType.PRODUCT_BASICS;
+    }
+
+    @Override
+    public ProcessType getProcessType() {
+        return ProcessType.UPDATE;
+    }
+
+    @Override
+    public void process(MultipartFile file, String processId) {
 
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(file.getInputStream()))) {
 
             String headerLine = br.readLine();
+
             if (headerLine == null) {
                 throw new RuntimeException("Empty CSV file");
             }
@@ -40,27 +51,16 @@ public class ProductBasicsCsvProcessor implements CsvProcessor {
             String line;
             while ((line = br.readLine()) != null) {
 
-                if (line.trim().isEmpty()) continue;
-
                 String[] values = line.split(",");
 
-                if (values.length != headers.length) {
-                    System.out.println("Skipping bad row: " + line);
-                    continue;
-                }
-
                 Map<String,Object> data = new HashMap<>();
-
-                // 🔗 metadata
-                data.put("processId", processId);
-                data.put("processType", processType.name());
-                data.put("entityType", EntityType.PRODUCT_BASICS);
-                data.put("createdAt", LocalDateTime.now());
-
-                // 📦 csv values
                 for (int i = 0; i < headers.length; i++) {
-                    data.put(headers[i], values[i].trim());
+                    data.put(headers[i], values[i]);
                 }
+
+                data.put("processId", processId);
+                data.put("entity", "PRODUCT_BASICS");
+                data.put("processType", "UPDATE");
 
                 mongoTemplate.insert(data, "product_basics");
             }
