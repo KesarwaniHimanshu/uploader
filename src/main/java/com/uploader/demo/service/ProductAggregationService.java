@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.uploader.demo.util.MongoValueHelper.*;
+
 @Service
 @RequiredArgsConstructor
 public class ProductAggregationService {
@@ -34,18 +36,24 @@ public class ProductAggregationService {
                         .collect(Collectors.groupingBy(r -> r.get("local_product_id").toString()));
 
         for (String localProductId : productGroups.keySet()) {
-            Map<String, Object> productDoc =
-                    buildProduct(localProductId, productGroups.get(localProductId), processId);
+            Map<String, Object> product =
+                    buildProduct(localProductId, productGroups.get(localProductId));
 
-            mongoTemplate.insert(productDoc, "product");
+            Map<String, Object> finalDoc = new LinkedHashMap<>();
+            finalDoc.put("processId", processId);
+            finalDoc.put("createdAt", Instant.now());
+            finalDoc.put("updatedAt", Instant.now());
+            finalDoc.put("product", product);
+
+            mongoTemplate.insert(finalDoc, "product");
+
         }
     }
 
     // ================= PRODUCT =================
 
     private Map<String, Object> buildProduct(String localProductId,
-                                             List<Map> rows,
-                                             String processId) {
+                                             List<Map> rows) {
 
         Map first = rows.get(0);
 
@@ -58,19 +66,13 @@ public class ProductAggregationService {
         product.put("productDescription", first.get("product_description"));
         product.put("productWebsite", first.get("link_to_product_website"));
         product.put("productType", first.get("product_type"));
-        product.put("usageModel", first.get("usage_model_single_or_multiple_users"));
-
-        product.put("processId", processId);
-        product.put("createdAt", Instant.now());
-        product.put("updatedAt", Instant.now());
+        product.put("usageModel", getString(first, "usage_model_single_or_multiple_users"));
 
         product.put("editions", buildEditions(rows));
 
-        Map<String, Object> wrapper = new LinkedHashMap<>();
-        wrapper.put("product", product);
-
-        return wrapper;
+        return product;
     }
+
 
     // ================= EDITION =================
 
@@ -154,45 +156,42 @@ public class ProductAggregationService {
 
     private Map<String, Object> buildPricePerUnit(Map r) {
 
-        Map<String, Object> map = new LinkedHashMap<>();
-
-        map.put("unitType", r.get("price_per_unit_unit_type"));
-        map.put("amounts", split(r.get("price_per_unit_amounts")));
-        map.put("currencies", split(r.get("price_per_unit_currencies")));
-        map.put("setupFeeAmounts", split(r.get("price_per_unit_setup_fee_amounts")));
-        map.put("setupFeeCurrencies", split(r.get("price_per_unit_setup_fee_currencies")));
-
-        return map;
+        return Map.of(
+                "unitType", getString(r, "price_per_unit_unit_type"),
+                "amounts", split(r.get("price_per_unit_amounts")),
+                "currencies", split(r.get("price_per_unit_currencies")),
+                "setupFeeAmounts", split(r.get("price_per_unit_setup_fee_amounts")),
+                "setupFeeCurrencies", split(r.get("price_per_unit_setup_fee_currencies"))
+        );
     }
+
 
     private Map<String, Object> buildContractTerms(Map r) {
 
-        Map<String, Object> map = new LinkedHashMap<>();
+        return Map.of(
+                "minimumContractDuration", getInteger(r, "contract_terms_minimum_contract_duration"),
 
-        map.put("minimumContractDuration",
-                toInt(r.get("contract_terms_minimum_contract_duration")));
+                "flatContractFee", buildMoney(
+                        r.get("contract_terms_flat_contract_fee_amounts"),
+                        r.get("contract_terms_flat_contract_fee_currencies")
+                ),
 
-        map.put("flatContractFee", buildMoney(
-                r.get("contract_terms_flat_contract_fee_amounts"),
-                r.get("contract_terms_flat_contract_fee_currencies")
-        ));
+                "blockEditionUpgradesMidContract",
+                getBoolean(r, "contract_terms_block_edition_upgrades_mid_contract"),
 
-        map.put("blockEditionUpgradesMidContract",
-                toBoolean(r.get("contract_terms_block_edition_upgrades_mid_contract")));
+                "blockSwitchingToShorterContracts",
+                getBoolean(r, "contract_terms_block_switching_to_shorter_contracts"),
 
-        map.put("blockSwitchingToShorterContracts",
-                toBoolean(r.get("contract_terms_block_switching_to_shorter_contracts")));
+                "terminationFeeDescription",
+                getString(r, "contract_terms_termination_fee_description"),
 
-        map.put("terminationFeeDescription",
-                r.get("contract_terms_termination_fee_description"));
-
-        map.put("terminationFlatFee", buildMoney(
-                r.get("contract_terms_termination_flat_fee_amounts"),
-                r.get("contract_terms_termination_flat_fee_currencies")
-        ));
-
-        return map;
+                "terminationFlatFee", buildMoney(
+                        r.get("contract_terms_termination_flat_fee_amounts"),
+                        r.get("contract_terms_termination_flat_fee_currencies")
+                )
+        );
     }
+
 
     // ================= UTIL =================
 

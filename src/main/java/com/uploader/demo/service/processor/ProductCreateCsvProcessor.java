@@ -19,6 +19,8 @@ import java.io.Reader;
 import java.time.Instant;
 import java.util.*;
 
+import static com.uploader.demo.util.MongoValueHelper.normalize;
+
 @Component
 @RequiredArgsConstructor
 public class ProductCreateCsvProcessor implements CsvProcessor {
@@ -34,52 +36,6 @@ public class ProductCreateCsvProcessor implements CsvProcessor {
     @Override
     public ProcessType getProcessType() {
         return ProcessType.CREATE;
-    }
-
-//    @Override
-//    public void process(MultipartFile file, String processId) {
-//
-//        try (
-//                Reader reader = new InputStreamReader(file.getInputStream());
-//                CSVParser csvParser = CSVFormat.DEFAULT
-//                        .withFirstRecordAsHeader()
-//                        .withTrim()
-//                        .parse(reader)
-//        ) {
-//
-//            Map<String, Integer> actualHeaders = csvParser.getHeaderMap();
-//            List<String> headers = new ArrayList<>(actualHeaders.keySet());
-//
-//            validateHeaders(headers);
-//
-//            for (CSVRecord record : csvParser) {
-//
-//                Map<String, Object> document = new LinkedHashMap<>();
-//
-//                for (String header : headers) {
-//                    document.put(normalize(header), record.get(header));
-//                }
-//
-//                document.put("processId", processId);
-//                document.put("entity", getEntityType().name());
-//                document.put("processType", getProcessType().name());
-//                document.put("uploadedAt", Instant.now());
-//
-//                mongoTemplate.insert(document, "product_create");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("PRODUCT CREATE CSV failed: " + e.getMessage(), e);
-//        }
-//    }
-
-    private String normalize(String header) {
-        return header
-                .toLowerCase()
-                .replace("?", "")
-                .replace("-", "")
-                .replace(" ", "_");
     }
 
     private void validateHeaders(List<String> headers) {
@@ -151,40 +107,3 @@ public class ProductCreateCsvProcessor implements CsvProcessor {
     }
 
 }
-
-//@Component
-//@RequiredArgsConstructor
-//public class ProductCreateCsvProcessor implements CsvProcessor {
-//
-//    private final MongoTemplate mongoTemplate;
-//    private final ProductAggregationService aggregationService;
-//
-//    @Override
-//    public void process(MultipartFile file, String processId) {
-//
-//        int count = 0;
-//
-//        try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-//
-//            validateHeader(br.readLine());
-//
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//
-//                Map<String,Object> row = parseRow(line, processId);
-//                mongoTemplate.insert(row, "product_create");
-//                count++;
-//            }
-//
-//        } catch (Exception e) {
-//            throw new BadRequestException("CSV ingestion failed", e);
-//        }
-//
-//        if (count == 0) {
-//            throw new BadRequestException("CSV contains no data rows");
-//        }
-//
-//        // 🔥 Phase 2
-//        aggregationService.buildFinalProduct(processId);
-//    }
-//}
