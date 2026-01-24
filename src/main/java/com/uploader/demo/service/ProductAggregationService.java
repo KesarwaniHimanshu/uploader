@@ -59,7 +59,7 @@ public class ProductAggregationService {
 
         Map<String, Object> product = new LinkedHashMap<>();
 
-        product.put("localProductId", localProductId);
+//        product.put("localProductId", localProductId);
         product.put("productReferenceId", UUID.randomUUID().toString());
         product.put("companyName", first.get("company_name"));
         product.put("productName", first.get("product_name"));
@@ -92,7 +92,7 @@ public class ProductAggregationService {
 
             Map<String, Object> edition = new LinkedHashMap<>();
 
-            edition.put("localEditionId", localEditionId);
+//            edition.put("localEditionId", localEditionId);
             edition.put("editionReferenceId", UUID.randomUUID().toString());
             edition.put("editionName", first.get("edition_name"));
             edition.put("pricingPlans", buildPricingPlans(editionRows));
@@ -120,7 +120,7 @@ public class ProductAggregationService {
 
             Map<String, Object> pricingPlan = new LinkedHashMap<>();
 
-            pricingPlan.put("localPricingPlanId", localPricingPlanId);
+//            pricingPlan.put("localPricingPlanId", localPricingPlanId);
             pricingPlan.put("pricingPlanReferenceId", UUID.randomUUID().toString());
             pricingPlan.put("billingFrequency", r.get("billing_frequency"));
 
