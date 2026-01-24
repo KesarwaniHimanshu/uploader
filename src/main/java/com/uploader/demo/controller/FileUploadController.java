@@ -37,8 +37,7 @@ public class FileUploadController {
     {
         EntityType entityType = EntityType.valueOf(entity);
         System.out.println("/uplod api called+++++++++++++++++++++++");
-        String processId = UUID.randomUUID().toString();
-        fileUploadService.processCsv(file, entityType, processType);
+        String processId =  fileUploadService.processCsv(file, entityType, processType);
         return ResponseEntity.ok(Map.of(
                 "message", "File processed successfully",
                 "processId", processId
