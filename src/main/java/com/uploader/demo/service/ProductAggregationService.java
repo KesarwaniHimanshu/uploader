@@ -40,7 +40,7 @@ public class ProductAggregationService {
                     buildProduct(localProductId, productGroups.get(localProductId));
 
             Map<String, Object> finalDoc = new LinkedHashMap<>();
-            finalDoc.put("processId", processId);
+//            finalDoc.put("processId", processId);
             finalDoc.put("createdAt", Instant.now());
             finalDoc.put("updatedAt", Instant.now());
             finalDoc.put("product", product);
